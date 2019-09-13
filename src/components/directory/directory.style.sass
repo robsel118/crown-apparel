@@ -1,6 +1,11 @@
+@import ./../../stylesheets/variables.sass
+  
 .directory-menu  
   width: 100% 
-  display: flex 
-  flex-wrap: wrap 
-  justify-content: space-between 
- 
+  justify-content: center
+
+.directory-large 
+  @include grid-col(center, 2)
+
+.directory-small 
+  @include grid-col(center, 3)
