@@ -1,15 +1,20 @@
-const express = require("express"),
+var express = require("express"),
+  http = require("http"),
+  path = require("path"),
   cors = require("cors"),
-  passport = require("passport"),
-  bodyParser = require("body-parser")
+  bodyParser = require("body-parser"),
   session = require("express-session"),
   mongoose = require("mongoose"),
+  passport= require('passport'),
   errorhandler = require("errorhandler");
 
 require("dotenv").config();
+
+var isProduction = process.env.NODE_ENV === "production";
+
 const app = express();
 
-app.use(cors);
+app.use(cors());
 
 // Normal express config defaults
 app.use(require("morgan")("dev"));
@@ -34,17 +39,18 @@ if (!isProduction) {
 if (isProduction) {
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect("mongodb://localhost/conduit");
+  mongoose.connect('mongodb://localhost/crown');
   mongoose.set("debug", true);
 }
 
-var isProduction = process.env.NODE_ENV === "production";
-
-require('./models/User');
+require("./models/User");
 require("./config/passport");
 
-app.use(require('./routes'));
+app.use(require("./routes"));
 
+app.get("/", (req, res) => {
+  res.send({ hello: "robert" });
+});
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error("Not Found");
@@ -61,7 +67,7 @@ if (!isProduction) {
     res.status(err.status || 500);
 
     res.json({
-      errors: {
+      'errors': {
         message: err.message,
         error: err
       }
@@ -81,12 +87,10 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.get("/", (req, res) => {
-  res.send({ hello: "world" });
-});
 
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
-var server = app.listen(PORT, () => {
+var server = app.listen(port, () => {
   console.log("Listening on port " + server.address().port);
 });
+

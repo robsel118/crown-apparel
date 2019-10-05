@@ -1,7 +1,8 @@
 var mongoose = require("mongoose"),
   uniqueValidator = require("mongoose-unique-validator"),
-  crypto = require("crypto");
-
+  crypto = require("crypto"),
+  jwt = require("jsonwebtoken"),
+  secret = require('../config').secret;
 var UserSchema = new mongoose.Schema(
   {
     username: {
@@ -26,7 +27,7 @@ var UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-UserSchema.plugin(uniqueValidator, { message: "{PATH} is already taken." });
+UserSchema.plugin(uniqueValidator, { message: "{VALUE} is already taken." });
 
 UserSchema.methods.validatePassword = function(password) {
   var hash = crypto
