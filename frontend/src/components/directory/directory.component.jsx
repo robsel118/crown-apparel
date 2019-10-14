@@ -6,6 +6,7 @@ import './directory.styles.sass';
 class Directory extends React.Component {
   constructor() {
     super();
+    console.log('hi');
     this.state = {
       categories: [
         {

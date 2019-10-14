@@ -1,5 +1,7 @@
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
+import { login } from '../../api/auth';
+import { storeUser } from '../../storage/authHandler';
 
 import './sign-in.styles.sass';
 
@@ -8,7 +10,8 @@ class _SignIn extends React.Component {
     super(props);
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      loginFailed: false
     };
   }
 
@@ -18,16 +21,22 @@ class _SignIn extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
       }
-    });
-    this.setState({
-      email: '',
-      password: ''
+      login(values)
+        .then(async () => {
+          storeUser(await getCurrentUser());
+          window.location = '/';
+        })
+        .catch(() => {
+          this.setState({ loginFailed: true });
+        });
     });
   };
 
   handleChange = e => {
     const { value, name } = e.target;
-    this.setState({ [name]: value });
+    this.setState({
+      [name]: value
+    });
   };
 
   render() {
@@ -35,52 +44,72 @@ class _SignIn extends React.Component {
 
     return (
       <div className="sign-in">
-        <h2 className="title">I already have an account</h2>
-        <span className="sub-title">Sign in with your email and password</span>
+        <h2 className="title"> I already have an account </h2>{' '}
+        <span className="sub-title">
+          {' '}
+          Sign in with your email and password{' '}
+        </span>{' '}
         <Form onSubmit={this.handleSubmit}>
           <Form.Item>
+            {' '}
             {getFieldDecorator('username', {
               rules: [
-                { required: true, message: 'Please input your username!' }
+                {
+                  required: true,
+                  message: 'Please input your username!'
+                }
               ]
             })(
               <Input
                 prefix={
-                  <Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />
+                  <Icon
+                    type="user"
+                    style={{
+                      color: 'rgba(0,0,0,.25)'
+                    }}
+                  />
                 }
                 placeholder="Username"
-                value={this.state.email}
                 onChange={this.handleChange}
               />
-            )}
-          </Form.Item>
-          {this.state.email}
+            )}{' '}
+          </Form.Item>{' '}
           <Form.Item>
+            {' '}
             {getFieldDecorator('password', {
               rules: [
-                { required: true, message: 'Please input your Password!' }
+                {
+                  required: true,
+                  message: 'Please input your Password!'
+                }
               ]
             })(
               <Input
                 prefix={
-                  <Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />
+                  <Icon
+                    type="lock"
+                    style={{
+                      color: 'rgba(0,0,0,.25)'
+                    }}
+                  />
                 }
                 type="password"
                 placeholder="Password"
-                value={this.state.password}
                 onChange={this.handleChange}
               />
-            )}
-          </Form.Item>
-          <Button block type="primary">
-            Sign In
-          </Button>
-        </Form>
+            )}{' '}
+          </Form.Item>{' '}
+          <Button block type="primary" onClick={this.handleSubmit}>
+            Sign In{' '}
+          </Button>{' '}
+        </Form>{' '}
       </div>
     );
   }
 }
 
-const SignIn = Form.create({ name: 'sign_in' })(_SignIn);
+const SignIn = Form.create({
+  name: 'sign_in'
+})(_SignIn);
 
 export default SignIn;
