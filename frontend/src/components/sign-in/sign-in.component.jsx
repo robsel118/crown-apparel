@@ -1,8 +1,6 @@
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
-import { login } from '../../api/auth';
-import { storeUser } from '../../storage/authHandler';
-
+import { signInWithGoogle } from '../../firebase/firebase.utils';
 import './sign-in.styles.sass';
 
 class _SignIn extends React.Component {
@@ -21,14 +19,6 @@ class _SignIn extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
       }
-      login(values)
-        .then(async () => {
-          storeUser(await getCurrentUser());
-          window.location = '/';
-        })
-        .catch(() => {
-          this.setState({ loginFailed: true });
-        });
     });
   };
 
@@ -97,12 +87,17 @@ class _SignIn extends React.Component {
                 placeholder="Password"
                 onChange={this.handleChange}
               />
-            )}{' '}
-          </Form.Item>{' '}
+            )}
+          </Form.Item>
           <Button block type="primary" onClick={this.handleSubmit}>
-            Sign In{' '}
-          </Button>{' '}
-        </Form>{' '}
+            Sign In
+          </Button>
+          <br />
+          <br />
+          <Button block type="normal" onClick={signInWithGoogle}>
+            Sign In With Google
+          </Button>
+        </Form>
       </div>
     );
   }
