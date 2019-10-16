@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
-import { signInWithGoogle } from '../../firebase/firebase.utils';
+import { signInWithGoogle, auth } from '../../firebase/firebase.utils';
 import './sign-in.styles.sass';
 
 class _SignIn extends React.Component {
@@ -8,16 +8,22 @@ class _SignIn extends React.Component {
     super(props);
     this.state = {
       email: '',
-      password: '',
-      loginFailed: false
+      password: ''
     };
   }
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+    this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        const { email, password } = values;
+
+        try {
+          await auth.signInWithEmailAndPassword(email, password);
+          this.setState({ email: '', password: '' });
+        } catch (error) {
+          console.log(error);
+        }
       }
     });
   };
@@ -42,24 +48,24 @@ class _SignIn extends React.Component {
         <Form onSubmit={this.handleSubmit}>
           <Form.Item>
             {' '}
-            {getFieldDecorator('displayName', {
+            {getFieldDecorator('email', {
               rules: [
                 {
                   required: true,
-                  message: 'Please input your displayName!'
+                  message: 'Please input your email!'
                 }
               ]
             })(
               <Input
                 prefix={
                   <Icon
-                    type="user"
+                    type="mail"
                     style={{
                       color: 'rgba(0,0,0,.25)'
                     }}
                   />
                 }
-                placeholder="displayName"
+                placeholder="email"
               />
             )}{' '}
           </Form.Item>{' '}
