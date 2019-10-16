@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import HomePage from './views/home-page/homepage.component';
 import ShopPage from './views/shop-page/shop.component';
 import LoginPage from './views/login-page/login-page.component';
@@ -12,7 +12,6 @@ import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 
 import './App.css';
 import 'antd/dist/antd.css';
-import { dispatch } from 'rxjs/internal/observable/pairs';
 
 class App extends React.Component {
   unsubscribeFromAuth = null;
@@ -47,18 +46,26 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={HomePage}></Route>
           <Route exact path="/shop" component={ShopPage}></Route>
-          <Route exact path="/login" component={LoginPage}></Route>
+          <Route
+            exact
+            path="/login"
+            render={() =>
+              this.props.currentUser ? <Redirect to="/" /> : <LoginPage />
+            }
+          ></Route>
         </Switch>
       </div>
     );
   }
 }
-
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
+});
 const mapDispatchToProps = dispatch => ({
   setCurrentUser: user => dispatch(setCurrentUser(user))
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App);
