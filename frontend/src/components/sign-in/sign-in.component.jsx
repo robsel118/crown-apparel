@@ -42,11 +42,11 @@ class _SignIn extends React.Component {
         <Form onSubmit={this.handleSubmit}>
           <Form.Item>
             {' '}
-            {getFieldDecorator('username', {
+            {getFieldDecorator('displayName', {
               rules: [
                 {
                   required: true,
-                  message: 'Please input your username!'
+                  message: 'Please input your displayName!'
                 }
               ]
             })(
@@ -59,8 +59,7 @@ class _SignIn extends React.Component {
                     }}
                   />
                 }
-                placeholder="Username"
-                onChange={this.handleChange}
+                placeholder="displayName"
               />
             )}{' '}
           </Form.Item>{' '}
@@ -85,11 +84,10 @@ class _SignIn extends React.Component {
                 }
                 type="password"
                 placeholder="Password"
-                onChange={this.handleChange}
               />
             )}
           </Form.Item>
-          <Button block type="primary" onClick={this.handleSubmit}>
+          <Button block type="primary" htmlType="submit">
             Sign In
           </Button>
           <br />

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
-import { register } from '../../api/auth';
-import { storeUser } from '../../storage/authHandler';
+import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
 
 import './sign-up.styles.sass';
 
@@ -9,23 +8,27 @@ class _SignUp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
+      displayName: '',
       email: '',
       password: ''
     };
   }
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
+    this.props.form.validateFields(async (err, values) => {
+      if (!err);
+      const { displayName, email, password } = values;
+      try {
+        const { user } = await auth.createUserWithEmailAndPassword(
+          email,
+          password
+        );
+        await createUserProfileDocument(user, { displayName });
+        this.setState({ displayName: '', email: '', password: '' });
+      } catch (error) {
+        console.log(error);
       }
-    });
-    this.setState({
-      username: '',
-      email: '',
-      password: ''
     });
   };
 
@@ -43,17 +46,16 @@ class _SignUp extends React.Component {
         <span className="sub-title">Create a new account</span>
         <Form onSubmit={this.handleSubmit}>
           <Form.Item>
-            {getFieldDecorator('username', {
+            {getFieldDecorator('displayName', {
               rules: [
-                { required: true, message: 'Please input your username!' }
+                { required: true, message: 'Please input your displayName!' }
               ]
             })(
               <Input
                 prefix={
                   <Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />
                 }
-                placeholder="Username"
-                onChange={this.handleChange}
+                placeholder="displayName"
               />
             )}
           </Form.Item>
@@ -72,7 +74,6 @@ class _SignUp extends React.Component {
                   <Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />
                 }
                 placeholder="Email"
-                onChange={this.handleChange}
               />
             )}
           </Form.Item>
@@ -88,12 +89,11 @@ class _SignUp extends React.Component {
                 }
                 type="password"
                 placeholder="Password"
-                onChange={this.handleChange}
               />
             )}
           </Form.Item>
 
-          <Button block type="primary">
+          <Button block type="primary" htmlType="submit">
             Sign Up
           </Button>
         </Form>
