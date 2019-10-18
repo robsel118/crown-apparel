@@ -18,7 +18,7 @@ const StripeCheckoutButton = ({ price }) => {
       amount={priceForStripe}
       panelLabel="Pay Now"
       token={onToken}
-      stripeKey="pk_test_aF6HwE2Fa7L91aeo8gn89Th200qiauD8hD"
+      stripeKey={process.env.REACT_APP_STRIPE_API_KEY}
     ></StripeCheckout>
   );
 };
