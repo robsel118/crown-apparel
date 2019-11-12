@@ -1,107 +1,85 @@
-import React from 'react';
-import { Form, Icon, Input, Button } from 'antd';
-import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
+import React, { useState } from "react";
+import { connect } from "react-redux";
 
-import './sign-up.styles.sass';
+import FormInput from "../form-input/form-input.component";
+import CustomButton from "../custom-button/custom-button.component";
 
-class _SignUp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      displayName: '',
-      email: '',
-      password: ''
-    };
-  }
+import { signUpStart } from "../../redux/user/user.actions";
 
-  handleSubmit = async e => {
-    e.preventDefault();
-    this.props.form.validateFields(async (err, values) => {
-      if (!err);
-      const { displayName, email, password } = values;
-      try {
-        const { user } = await auth.createUserWithEmailAndPassword(
-          email,
-          password
-        );
-        await createUserProfileDocument(user, { displayName });
-        this.setState({ displayName: '', email: '', password: '' });
-      } catch (error) {
-        console.log(error);
-      }
-    });
+import { SignUpContainer, SignUpTitle } from "./sign-up.styles";
+
+const SignUp = ({ signUpStart }) => {
+  const [credentials, setCredentials] = useState({
+    displayName: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
+
+  const { displayName, email, password, confirmPassword } = credentials;
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("passwords don't match");
+      return;
+    }
+
+    signUpStart({ displayName, email, password });
   };
 
-  handleChange = e => {
-    const { value, name } = e.target;
-    this.setState({ [name]: value });
+  const handleChange = event => {
+    const { name, value } = event.target;
+
+    setCredentials({ ...credentials, [name]: value });
   };
 
-  render() {
-    const { getFieldDecorator } = this.props.form;
+  return (
+    <SignUpContainer>
+      <SignUpTitle>I do not have a account</SignUpTitle>
+      <span>Sign up with your email and password</span>
+      <form className="sign-up-form" onSubmit={handleSubmit}>
+        <FormInput
+          type="text"
+          name="displayName"
+          value={displayName}
+          onChange={handleChange}
+          label="Display Name"
+          required
+        />
+        <FormInput
+          type="email"
+          name="email"
+          value={email}
+          onChange={handleChange}
+          label="Email"
+          required
+        />
+        <FormInput
+          type="password"
+          name="password"
+          value={password}
+          onChange={handleChange}
+          label="Password"
+          required
+        />
+        <FormInput
+          type="password"
+          name="confirmPassword"
+          value={confirmPassword}
+          onChange={handleChange}
+          label="Confirm Password"
+          required
+        />
+        <CustomButton type="submit">SIGN UP</CustomButton>
+      </form>
+    </SignUpContainer>
+  );
+};
 
-    return (
-      <div className="sign-up">
-        <h2 className="title">I don't have an account</h2>
-        <span className="sub-title">Create a new account</span>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Item>
-            {getFieldDecorator('displayName', {
-              rules: [
-                { required: true, message: 'Please input your displayName!' }
-              ]
-            })(
-              <Input
-                prefix={
-                  <Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />
-                }
-                placeholder="displayName"
-              />
-            )}
-          </Form.Item>
-          <Form.Item>
-            {getFieldDecorator('email', {
-              rules: [
-                {
-                  type: 'email',
-                  message: 'The input is not valid E-mail!'
-                },
-                { required: true, message: 'Please input your email!' }
-              ]
-            })(
-              <Input
-                prefix={
-                  <Icon type="mail" style={{ color: 'rgba(0,0,0,.25)' }} />
-                }
-                placeholder="Email"
-              />
-            )}
-          </Form.Item>
-          <Form.Item>
-            {getFieldDecorator('password', {
-              rules: [
-                { required: true, message: 'Please input your Password!' }
-              ]
-            })(
-              <Input
-                prefix={
-                  <Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />
-                }
-                type="password"
-                placeholder="Password"
-              />
-            )}
-          </Form.Item>
+const mapDispatchToProps = dispatch => ({
+  signUpStart: userCredentials => dispatch(signUpStart(userCredentials))
+});
 
-          <Button block type="primary" htmlType="submit">
-            Sign Up
-          </Button>
-        </Form>
-      </div>
-    );
-  }
-}
-
-const SignUp = Form.create({ name: 'sign_in' })(_SignUp);
-
-export default SignUp;
+export default connect(null, mapDispatchToProps)(SignUp);

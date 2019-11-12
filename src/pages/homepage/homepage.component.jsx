@@ -1,14 +1,13 @@
 import React from 'react';
-import Directory from '../../components/directory/directory.component';
-import { PageHeader } from 'antd';
 
-import './homepage.style.sass';
+import Directory from '../../components/directory/directory.component';
+
+import { HomePageContainer } from './homepage.styles';
 
 const HomePage = () => (
-  <div className="homepage">
-    <PageHeader title="Home Page" />
+  <HomePageContainer>
     <Directory />
-  </div>
+  </HomePageContainer>
 );
 
 export default HomePage;

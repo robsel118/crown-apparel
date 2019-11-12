@@ -7,8 +7,24 @@ export const selectCollections = createSelector(
   shop => shop.collections
 );
 
-export const selectCollection = routeParam =>
+export const selectCollectionsForPreview = createSelector(
+  [selectCollections],
+  collections =>
+    collections ? Object.keys(collections).map(key => collections[key]) : []
+);
+
+export const selectCollection = collectionUrlParam =>
   createSelector(
     [selectCollections],
-    collections => collections.find(item => item.routeName === routeParam)
+    collections => (collections ? collections[collectionUrlParam] : null)
   );
+
+export const selectIsCollectionFetching = createSelector(
+  [selectShop],
+  shop => shop.isFetching
+);
+
+export const selectIsCollectionsLoaded = createSelector(
+  [selectShop],
+  shop => !!shop.collections
+);

@@ -1,114 +1,77 @@
-import React from 'react';
-import { Form, Icon, Input, Button } from 'antd';
-import { signInWithGoogle, auth } from '../../firebase/firebase.utils';
-import './sign-in.styles.sass';
+import React, { useState } from "react";
+import { connect } from "react-redux";
 
-class _SignIn extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: '',
-      password: ''
-    };
-  }
+import FormInput from "../form-input/form-input.component";
+import CustomButton from "../custom-button/custom-button.component";
 
-  handleSubmit = async e => {
-    e.preventDefault();
-    this.props.form.validateFields(async (err, values) => {
-      if (!err) {
-        const { email, password } = values;
+import {
+  googleSignInStart,
+  emailSignInStart
+} from "../../redux/user/user.actions";
 
-        try {
-          await auth.signInWithEmailAndPassword(email, password);
-          this.setState({ email: '', password: '' });
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    });
+import {
+  SignInContainer,
+  SignInTitle,
+  ButtonsBarContainer
+} from "./sign-in.styles";
+
+const SignIn = ({ emailSignInStart, googleSignInStart }) => {
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    const { email, password } = credentials;
+
+    emailSignInStart(email, password);
   };
 
-  handleChange = e => {
-    const { value, name } = e.target;
-    this.setState({
-      [name]: value
-    });
+  const handleChange = event => {
+    const { value, name } = event.target;
+
+    setCredentials({ ...credentials, [name]: value });
   };
 
-  render() {
-    const { getFieldDecorator } = this.props.form;
+  return (
+    <SignInContainer>
+      <SignInTitle>I already have an account</SignInTitle>
+      <span>Sign in with your email and password</span>
 
-    return (
-      <div className="sign-in">
-        <h2 className="title"> I already have an account </h2>{' '}
-        <span className="sub-title">
-          {' '}
-          Sign in with your email and password{' '}
-        </span>{' '}
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Item>
-            {' '}
-            {getFieldDecorator('email', {
-              rules: [
-                {
-                  required: true,
-                  message: 'Please input your email!'
-                }
-              ]
-            })(
-              <Input
-                prefix={
-                  <Icon
-                    type="mail"
-                    style={{
-                      color: 'rgba(0,0,0,.25)'
-                    }}
-                  />
-                }
-                placeholder="email"
-              />
-            )}{' '}
-          </Form.Item>{' '}
-          <Form.Item>
-            {' '}
-            {getFieldDecorator('password', {
-              rules: [
-                {
-                  required: true,
-                  message: 'Please input your Password!'
-                }
-              ]
-            })(
-              <Input
-                prefix={
-                  <Icon
-                    type="lock"
-                    style={{
-                      color: 'rgba(0,0,0,.25)'
-                    }}
-                  />
-                }
-                type="password"
-                placeholder="Password"
-              />
-            )}
-          </Form.Item>
-          <Button block type="primary" htmlType="submit">
-            Sign In
-          </Button>
-          <br />
-          <br />
-          <Button block type="normal" onClick={signInWithGoogle}>
-            Sign In With Google
-          </Button>
-        </Form>
-      </div>
-    );
-  }
-}
+      <form onSubmit={handleSubmit}>
+        <FormInput
+          name="email"
+          type="email"
+          handleChange={handleChange}
+          value={credentials.email}
+          label="email"
+          required
+        />
+        <FormInput
+          name="password"
+          type="password"
+          value={credentials.password}
+          handleChange={handleChange}
+          label="password"
+          required
+        />
+        <ButtonsBarContainer>
+          <CustomButton type="submit"> Sign in </CustomButton>
+          <CustomButton
+            type="button"
+            onClick={googleSignInStart}
+            isGoogleSignIn
+          >
+            Sign in with Google
+          </CustomButton>
+        </ButtonsBarContainer>
+      </form>
+    </SignInContainer>
+  );
+};
 
-const SignIn = Form.create({
-  name: 'sign_in'
-})(_SignIn);
+const mapDispatchToProps = dispatch => ({
+  googleSignInStart: () => dispatch(googleSignInStart()),
+  emailSignInStart: (email, password) =>
+    dispatch(emailSignInStart({ email, password }))
+});
 
-export default SignIn;
+export default connect(null, mapDispatchToProps)(SignIn);
